@@ -1,0 +1,5 @@
+cookie_cats.csv
+*.png
+__pycache__/
+*.pyc
+.vscode/
