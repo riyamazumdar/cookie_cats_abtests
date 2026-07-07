@@ -41,3 +41,17 @@ SELECT version,
          ROUND(AVG(sum_gamerounds),1) AS avg_gamerounds 
 FROM player_data 
 GROUP BY version;
+
+--segment cut by engagement level- this checks if retention difference holds evenly across all players or is driven by one subgroup
+WITH quartiles AS (
+     SELECT *, 
+        NTILE(4) OVER(ORDER BY sum_gamerounds) AS engagement_quartile 
+     FROM player_data)
+SELECT engagement_quartile,
+        version, 
+        COUNT(*) AS n_players, 
+        ROUND(SUM(retention_1)*100.0/ COUNT(*),2) AS retention_1_pct, 
+        ROUND(SUM(retention_7)*100.0/COUNT(*),2) AS retention_7_pct 
+FROM quartiles 
+GROUP BY engagement_quartile, version 
+ORDER BY engagement_quartile, version;
