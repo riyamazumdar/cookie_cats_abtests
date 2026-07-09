@@ -51,3 +51,25 @@ n_40=len(gate_40)
 p_30_r7, p_40_r7, z_r7, p_val_r7= two_proportion_z_test(success_30_r7, n_30, success_40_r7, n_40)
 print(f"\nretention_7 - gate_30:{p_30_r7*100:.2f}%, gate_40:{p_40_r7*100:.2f}%")
 print(f"z-statistic: {z_r7:.3f}, p-value: {p_val_r7:.4f}")
+
+from statsmodels.stats.power import NormalIndPower
+from statsmodels.stats.proportion import proportion_effectsize
+
+power_analysis = NormalIndPower()
+
+for label, p_a, p_b, n in [
+    ("retention_1", p_30_r1, p_40_r1, n_30),
+    ("retention_7", p_30_r7, p_40_r7, n_30),
+]:
+    effect_size = proportion_effectsize(p_a, p_b)
+    achieved_power = power_analysis.solve_power(
+        effect_size=abs(effect_size), nobs1=n, alpha=0.05, alternative="two-sided"
+    )
+    required_n = power_analysis.solve_power(
+        effect_size=abs(effect_size), alpha=0.05, power=0.8, alternative="two-sided"
+    )
+
+    print(f"\n--- Power analysis: {label} ---")
+    print(f"Effect size (Cohen's h): {effect_size:.4f}")
+    print(f"Achieved power with n={n} per group: {achieved_power:.3f}")
+    print(f"Sample size needed per group for 80% power: {required_n:.0f}")
